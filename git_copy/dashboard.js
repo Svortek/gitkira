@@ -212,6 +212,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 reader.readAsText(file);
             });
 
+            // Очистка полей формы после добавления
+            document.getElementById('new-folder').value = '';
+            document.getElementById('new-file').value = '';
+            document.getElementById('new-folder-name').innerText = 'No folder selected';
+            document.getElementById('new-file-name').innerText = 'No file selected';
+            
             addFileModal.style.display = 'none';
         } else {
             alert('Please select files or folders to upload.');
@@ -240,8 +246,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     const fileItem = document.createElement('p');
                     fileItem.classList.add('file-item');
                     fileItem.innerHTML = `
-                        ${part}
+                        <span class="file-name">${part}</span>
+                        <div class="file-icons">
+                            <i class="fas fa-pen rename-icon"></i>
+                            <i class="fas fa-trash delete-file-icon"></i>
+                        </div>
                     `;
+                    fileItem.querySelector('.rename-icon').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showRenameModal(file.name, renameFile);
+                    });
+                    fileItem.querySelector('.delete-file-icon').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showDeleteModal(() => deleteFile(repoName, file.name, fileItem));
+                    });
                     fileItem.addEventListener('click', (e) => {
                         e.stopPropagation();
                         openEditor(file, repoName);
@@ -290,12 +308,6 @@ document.addEventListener("DOMContentLoaded", () => {
         editor.style.display = 'flex';
         editorFileName.innerHTML = `
             Editing: ${file.name}
-            <div class="editor-icons">
-                <i class="fas fa-pen rename-icon"></i>
-                <i class="fas fa-trash delete-file-icon"></i>
-                <i class="fas fa-save save-editor"></i>
-                <i class="fas fa-times close-editor"></i>
-            </div>
         `;
         editorFileName.dataset.filePath = file.name;
         editorFileName.dataset.repoName = repoName;
@@ -342,7 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const fileIndex = repo.files.findIndex(f => f.name === fileName);
         if (fileIndex > -1) {
             repo.files.splice(fileIndex, 1);
-            fileItem.closest('.file-item').remove(); // Удаление элемента из DOM
+            fileItem.remove(); // Удаление элемента из DOM
             if (editorFileName.dataset.filePath === fileName && editorFileName.dataset.repoName === repoName) {
                 editor.style.display = 'none';
                 editorContent.value = '';

@@ -263,17 +263,6 @@ main {
     align-items: center;
     margin-bottom: 1rem;
 }
-
-.editor-icons {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.editor-icons i {
-    color: #f50057;
-    cursor: pointer;
-}
-
 .editor-content {
     border-radius: 16px;
     flex: 1;
