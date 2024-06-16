@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addFileBtnInside.addEventListener('click', () => {
         addFileModal.style.display = 'block';
-        addFileModal.dataset.currentFolder = repoNameHeader.innerText;
+        addFileModal.dataset.currentFolder = '';
         document.getElementById('new-folder').value = '';
         document.getElementById('new-file').value = '';
         document.getElementById('new-folder-name').innerText = 'No folder selected';
@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addFileForm.addEventListener('submit', (event) => {
         event.preventDefault();
-        const currentFolder = addFileModal.dataset.currentFolder;
+        const currentFolder = addFileModal.dataset.currentFolder || '';
         const repoName = repoNameHeader.innerText;
         const repo = repositories.find(r => r.name === repoName);
 
@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
             Array.from(newFolder).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const filePath = `${currentFolder}/${file.webkitRelativePath || file.name}`;
+                    const filePath = `${currentFolder}${currentFolder ? '/' : ''}${file.webkitRelativePath || file.name}`;
                     repo.files.push({ name: filePath, content: e.target.result });
                     displayRepository(repoName);
                 };
@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
             Array.from(newFiles).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const filePath = `${currentFolder}/${file.name}`;
+                    const filePath = `${currentFolder}${currentFolder ? '/' : ''}${file.name}`;
                     repo.files.push({ name: filePath, content: e.target.result });
                     displayRepository(repoName);
                 };
@@ -333,6 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 editor.style.display = 'none';
                 editorContent.value = '';
             }
+            confirmDeleteModal.style.display = 'none'; // Закрываем модальное окно после удаления репозитория
         }
     }
 
@@ -341,11 +342,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const fileIndex = repo.files.findIndex(f => f.name === fileName);
         if (fileIndex > -1) {
             repo.files.splice(fileIndex, 1);
-            fileItem.remove();
+            fileItem.closest('.file-item').remove(); // Удаление элемента из DOM
             if (editorFileName.dataset.filePath === fileName && editorFileName.dataset.repoName === repoName) {
                 editor.style.display = 'none';
                 editorContent.value = '';
             }
+            confirmDeleteModal.style.display = 'none'; // Закрываем модальное окно после удаления файла
         }
     }
 
@@ -357,6 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
             editor.style.display = 'none';
             editorContent.value = '';
         }
+        confirmDeleteModal.style.display = 'none'; // Закрываем модальное окно после удаления папки
     }
 
     function showDeleteModal(deleteCallback) {
